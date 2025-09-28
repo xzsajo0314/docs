@@ -9,10 +9,10 @@ const config: Config = {
 	favicon: "images/favicon.png",
 
 	// Set the production url of your site here
-	url: "https://openwebui.com",
+	url: "https://xzsajo0314.github.io/docs/",
 	// Set the /<baseUrl>/ pathname under which your site is served
 	// For GitHub pages deployment, it is often '/<projectName>/'
-	baseUrl: "/",
+	baseUrl: "/docs/",
 
 	// GitHub pages deployment config.
 	// If you aren't using GitHub pages, you don't need these.
