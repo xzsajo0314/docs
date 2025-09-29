@@ -1,0 +1,103 @@
+---
+sidebar_position: 2200
+title: "教你手搓一個屬於自己的文檔站 docs開源篇（實現基於GitHub Actions的全自動部署docs）"
+---
+
+> 更新时间：2025年9月28日 01点15分
+
+## Fork 本項目到自己的 GitHub 倉庫（文檔站原石）
+https://github.com/open-webui/docs
+
+![GitHub全自动部署-21.png](https://cloudflare-imgbed-7oz.pages.dev/file/1759142488340_GitHub全自动部署-21.png)
+
+![GitHub全自动部署-2.png](https://cloudflare-imgbed-7oz.pages.dev/file/1758920815866_GitHub全自动部署-2.png)
+
+![GitHub全自动部署-3.png](https://cloudflare-imgbed-7oz.pages.dev/file/1758920816732_GitHub全自动部署-3.png)
+
+![GitHub全自动部署-4.png](https://cloudflare-imgbed-7oz.pages.dev/file/1758920819579_GitHub全自动部署-4.png)
+
+![GitHub全自动部署-9.png](https://cloudflare-imgbed-7oz.pages.dev/file/1758979030584_GitHub全自动部署-9.png)
+
+## 在本地創建 SSH 密鑰對（鑰匙、鎖）
+   - 打開終端或命令提示符
+   - 執行以下命令創建密鑰對
+     ```bash
+     ssh-keygen -t rsa -b 4096
+     ```
+   - 將生成的公鑰（鎖） `id_rsa_docs.pub` 內容複製到 GitHub 倉庫的部署密鑰設置中
+     - 執行以下命令查看公鑰內容
+     ```bash
+     cat ~/.ssh/id_rsa_docs.pub
+     ```
+     或者
+     ```bash
+     type $env:USERPROFILE\.ssh\id_rsa_docs.pub
+     ```
+     - 複製終端上的公鑰內容
+     - 進入您的倉庫設置頁面
+     - 選擇`SSH and GPG keys`
+     - 點擊`New SSH key`
+     - 將公鑰內容粘貼到`Key`字段中
+     - 為密鑰添加`Title`，例如`id_rsa_docs`
+     - 點擊`Add SSH key`保存密鑰  
+
+## 管理多個賬號GitHub倉庫的SSH密鑰
+   - 若您有其他 GitHub 賬號，需要為每個賬號創建一個獨立的密鑰對
+   - 每個密鑰對的文件名稱應包含賬號名稱，例如`id_rsa_docs`、`id_rsa_butterfly`等
+   - 編輯`~/.ssh/config`文件（若不存在，則創建一個），添加以下內容
+```bash
+Host github-docs
+  HostName github.com
+  User git
+  IdentityFile ~/.ssh/id_rsa_docs
+
+Host github-butterfly
+  HostName github.com
+  User git
+  IdentityFile ~/.ssh/id_rsa_butterfly
+```
+
+![GitHub登录凭据.png](https://cloudflare-imgbed-7oz.pages.dev/file/1758920815738_GitHub登录凭据.png)
+
+## 刪除 HTTPS 登錄憑證，改用 SSH 登錄（博客鑰匙）
+   - 刪除 HTTPS 登錄憑證后，git clone `文檔站原石` 到本地
+   - 打開終端或命令提示符
+   - 執行以下命令克隆`文檔站原石`到本地
+     ```bash
+     git clone git@github-docs:<您的用戶名>/docs.git
+     ```
+   - 確認登錄憑證已替換
+     ```bash
+     git remote -v
+     ```
+     應該會看到類似以下的輸出：
+     ```bash
+     origin  git@github-docs:<您的用戶名>/docs.git (fetch)
+     origin  git@github-docs:<您的用戶名>/docs.git (push)
+     ```
+   - 若不是以上的輸出：
+     - 打開終端或命令提示符
+     - 執行以下命令將遠程倉庫地址替換為 SSH 地址
+     ```bash
+     git remote set-url origin git@github-docs:<您的用戶名>/docs.git 
+     ```
+
+![GitHub全自动部署-22.png](https://cloudflare-imgbed-7oz.pages.dev/file/1759143137369_GitHub全自动部署-22.png)
+
+## 修改文檔站base
+  - 打開 `docs/docusaurus.config.ts` 文件
+  - 尋找 `url: "https://openwebui.com"`
+  - 修改爲 `url: "https://<您的用戶名>.github.io"`
+  - 將 `baseUrl: "/"` 修改爲 `baseUrl: "/docs/"`
+
+## 設置Build and deployment from GitHub Actions
+  - In your GitHub repo’s setting, navigate to `Settings` > `Pages` > `Source`. Change the source to `GitHub Actions` and save.
+
+![GitHub全自動部署-13.png](https://cloudflare-imgbed-7oz.pages.dev/file/1758989293234_GitHub全自動部署-13.png)
+
+## Commit and Push
+  ```bash
+  git add .
+  git commit -m "github action update"
+  git push origin main
+  ```
